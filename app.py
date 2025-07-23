@@ -51,7 +51,6 @@ def create_user():
         return jsonify({'message': "Nenhum dado JSON encontrado na requisição"}), 400
 
 @app.route('/user/<int:id_user>', methods=["GET"])
-@login_required
 def read_user(id_user):
     user = User.query.get(id_user)
     
@@ -59,6 +58,53 @@ def read_user(id_user):
         return jsonify({"Username": user.nome})
     
     return jsonify({"message": "Usuário não encontrado"}), 404
+
+@app.route('/user', methods=['GET'])
+def read_users():
+    users = User.query.all()
+    lista_usuario = []
+    
+    for user in users:
+        lista_usuario.append({
+            'id': user.id,
+            'nome': user.nome,
+            'email': user.email,
+            'criando_em': user.criando_em.strftime('%d/%m/%Y') if user.criando_em else None
+        })
+    
+    return jsonify({'Usuários': lista_usuario}), 200
+
+@app.route('/user/<int:id>', methods=["PUT"])
+def update_user(id):
+    data = request.get_json()
+    user = User.query.get(id)
+    
+    if id != user.id:
+        return jsonify({'message': 'Operação não permitida'}), 403
+
+    if user and data.get('senha'):
+        user.senha = data.get('senha')
+        db.session.commit()
+        return jsonify({'message': f"Usuário {id} atualizado com sucesso"}), 200
+    
+    return jsonify({"message": "Usuário não encontrado"}), 404
+
+@app.route('/user/<int:id>', methods=["DELETE"])
+def delete_user(id):
+    user = User.query.get(id)
+    
+    if id != user.id:
+        return jsonify({'message': 'Operação não permitida'}), 403
+
+    if user:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify({'message': f"Usuário {id} deletado com sucesso"}), 200
+
+    return jsonify({'message': 'Usuário não encontrado'}), 404
+
+
+
 
 @app.route('/login', methods=["POST"])
 def login():
