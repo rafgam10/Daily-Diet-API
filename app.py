@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
-from flask_login import LoginManager, current_user, login_required, login_user, logout_user
+from flask_login import LoginManager, login_required, login_user, logout_user
 from models.usuarios import User
+from models.refeicoes import Refeicao
 from dotenv import load_dotenv
 from database import db
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -24,6 +25,7 @@ def load_user(user_id):
 
 # CRUD
 
+# Rotas de User:
 @app.route('/user', methods=["POST"])
 def create_user():
     data = request.get_json()
@@ -104,7 +106,62 @@ def delete_user(id):
     return jsonify({'message': 'Usuário não encontrado'}), 404
 
 
+# Rotas de Refeições:
+@app.route('/user/<int:id_user>/refeicoes', methods=["POST"])
+def create_refeicoes(id_user):
+    data = request.get_json()
+    nome_refeicao = data.get('nome')
+    data_hora = data.get('data_hora')
+    dentro_dieta = data.get('dentro_dieta')
+    criando_em = data.get('criando_em')
+    
+    user = User.query.get(id_user)
+    
+    if not user:
+        return jsonify({'message': 'Usuário não encontrado'}), 404
 
+    try:
+        data_hora = datetime.strptime(data_hora, "%d/%m/%Y - %H:%M") if data_hora else None
+        criando_em = datetime.strptime(criando_em, "%d/%m/%Y") if criando_em else None
+    except:
+        return jsonify({'error': 'Formato de data inválido. Use DD/MM/YYYY - HH:MM para data_hora e DD/MM/YYYY para criando_em'}), 400
+    
+    refeicao = Refeicao(
+        usuario_id=id_user,
+        nome=nome_refeicao,
+        data_hora=data_hora,
+        dentro_dieta=dentro_dieta,
+        criando_em=criando_em,
+    )
+    db.session.add(refeicao)
+    db.session.commit()
+    
+    return jsonify({'message': 'Refeição adicionada com sucesso'}), 201
+
+@app.route('/user/<int:id_user>/refeicoes', methods=["GET"])
+def list_refeicoes(id_user):
+    refeicoes_all = Refeicao.query.filter_by(usuario_id=id_user).all()
+    refeito_list = []
+    
+    for refeicao in refeicoes_all:
+        
+        try:
+            refeicao.data_hora = datetime.strftime(refeicao.data_hora, "%d/%m/%Y - %HH:%MM") if refeicao.data_hora else None
+            refeicao.criando_em = datetime.strftime(refeicao.criando_em, "%d/%m/%Y") if refeicao.criando_em else None
+        except:
+            return jsonify({'Error': 'Formatação errada'}), 400
+        
+        refeito_list.append({
+            'id': refeicao.id,
+            'id_usuario': refeicao.usuario_id,
+            'nome': refeicao.nome,
+            'data_hora': refeicao.data_hora,
+            'dentro_dieta': refeicao.dentro_dieta,
+            'criando_em': refeicao.criando_em
+        })
+    
+    return jsonify({f'Lista do ID({id_user})': refeito_list})
+    
 
 @app.route('/login', methods=["POST"])
 def login():
