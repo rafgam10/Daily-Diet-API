@@ -1,0 +1,301 @@
+{
+	"info": {
+		"_postman_id": "3c5e4f94-94bc-4fef-a335-97195860f729",
+		"name": "Daily-Diet-API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "38933534",
+		"_collection_link": "https://rafael-2266.postman.co/workspace/Projetos-Pessoal~8fc3d3b6-406a-4808-811e-77bb33abc6e9/collection/38933534-3c5e4f94-94bc-4fef-a335-97195860f729?action=share&source=collection_link&creator=38933534"
+	},
+	"item": [
+		{
+			"name": "User",
+			"item": [
+				{
+					"name": "Buscar User por ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Base_Flask}}/user/2",
+							"host": [
+								"{{Base_Flask}}"
+							],
+							"path": [
+								"user",
+								"2"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Base_Flask}}/user",
+							"host": [
+								"{{Base_Flask}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar senha user",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"senha\": \"12345\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{Base_Flask}}/user/1",
+							"host": [
+								"{{Base_Flask}}"
+							],
+							"path": [
+								"user",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Deletar User",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{Base_Flask}}/user/1",
+							"host": [
+								"{{Base_Flask}}"
+							],
+							"path": [
+								"user",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Criar User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"nome\": \"Pedro\",\n    \"email\": \"pedro@gmail.com\",\n    \"senha\": \"321\",\n    \"criando_em\": \"12/12/2025\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{Base_Flask}}/user",
+							"host": [
+								"{{Base_Flask}}"
+							],
+							"path": [
+								"user"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Refeições",
+			"item": [
+				{
+					"name": "Criar Refeição",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Café\",\n  \"data_hora\": \"24/07/2025 - 10:30\",\n  \"dentro_dieta\": true,\n  \"criado_em\": \"24/07/2025\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{Base_Flask}}/user/1/refeicoes",
+							"host": [
+								"{{Base_Flask}}"
+							],
+							"path": [
+								"user",
+								"1",
+								"refeicoes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Refeições",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"nome\": \"Almoço\",\n  \"data_hora\": \"23/07/2025 - 12:30\",\n  \"dentro_dieta\": true,\n  \"criando_em\": \"23/07/2025\"\n}\n"
+						},
+						"url": {
+							"raw": "{{Base_Flask}}/user/1/refeicoes",
+							"host": [
+								"{{Base_Flask}}"
+							],
+							"path": [
+								"user",
+								"1",
+								"refeicoes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Listar Refeições por data",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{Base_Flask}}/user/1/refeicoes?data=24/07/2025",
+							"host": [
+								"{{Base_Flask}}"
+							],
+							"path": [
+								"user",
+								"1",
+								"refeicoes"
+							],
+							"query": [
+								{
+									"key": "data",
+									"value": "24/07/2025"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Atualizar uma refeição.",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"novo_nome\": \"Abacate com pão\"\n}\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{Base_Flask}}/user/{{id_user_exemple}}/refeicoes/{{id_refeicao_exemple}}",
+							"host": [
+								"{{Base_Flask}}"
+							],
+							"path": [
+								"user",
+								"{{id_user_exemple}}",
+								"refeicoes",
+								"{{id_refeicao_exemple}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Excluir refeição",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{Base_Flask}}/user/{{id_user_exemple}}/refeicoes/{{id_refeicao_exemple}}",
+							"host": [
+								"{{Base_Flask}}"
+							],
+							"path": [
+								"user",
+								"{{id_user_exemple}}",
+								"refeicoes",
+								"{{id_refeicao_exemple}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"pedro@gmail.com\",\n    \"senha\": \"321\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{Base_Flask}}/login",
+					"host": [
+						"{{Base_Flask}}"
+					],
+					"path": [
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{Base_Flask}}/logout",
+					"host": [
+						"{{Base_Flask}}"
+					],
+					"path": [
+						"logout"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
