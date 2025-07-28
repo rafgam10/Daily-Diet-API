@@ -113,7 +113,7 @@ def create_refeicoes(id_user):
     nome_refeicao = data.get('nome')
     data_hora = data.get('data_hora')
     dentro_dieta = data.get('dentro_dieta')
-    criando_em = data.get('criando_em')
+    criado_em = data.get('criado_em')
     
     user = User.query.get(id_user)
     
@@ -122,7 +122,7 @@ def create_refeicoes(id_user):
 
     try:
         data_hora = datetime.strptime(data_hora, "%d/%m/%Y - %H:%M") if data_hora else None
-        criando_em = datetime.strptime(criando_em, "%d/%m/%Y") if criando_em else None
+        criado_em = datetime.strptime(criado_em, "%d/%m/%Y") if criado_em else None
     except:
         return jsonify({'error': 'Formato de data inválido. Use DD/MM/YYYY - HH:MM para data_hora e DD/MM/YYYY para criando_em'}), 400
     
@@ -131,7 +131,7 @@ def create_refeicoes(id_user):
         nome=nome_refeicao,
         data_hora=data_hora,
         dentro_dieta=dentro_dieta,
-        criando_em=criando_em,
+        criado_em=criado_em,
     )
     db.session.add(refeicao)
     db.session.commit()
@@ -142,26 +142,84 @@ def create_refeicoes(id_user):
 def list_refeicoes(id_user):
     refeicoes_all = Refeicao.query.filter_by(usuario_id=id_user).all()
     refeito_list = []
-    
+
     for refeicao in refeicoes_all:
-        
         try:
-            refeicao.data_hora = datetime.strftime(refeicao.data_hora, "%d/%m/%Y - %HH:%MM") if refeicao.data_hora else None
-            refeicao.criando_em = datetime.strftime(refeicao.criando_em, "%d/%m/%Y") if refeicao.criando_em else None
+            refeicao.data_hora = datetime.strftime(refeicao.data_hora, "%d/%m/%Y - %H:%M") if refeicao.data_hora else None
+            refeicao.criado_em = datetime.strftime(refeicao.criado_em, "%d/%m/%Y") if refeicao.criado_em else None
         except:
             return jsonify({'Error': 'Formatação errada'}), 400
-        
+
         refeito_list.append({
             'id': refeicao.id,
             'id_usuario': refeicao.usuario_id,
             'nome': refeicao.nome,
             'data_hora': refeicao.data_hora,
             'dentro_dieta': refeicao.dentro_dieta,
-            'criando_em': refeicao.criando_em
+            'criado_em': refeicao.criado_em
+        })
+
+    return jsonify({f'Lista do ID({id_user})': refeito_list})
+
+@app.route('/user/<int:id_user>/refeicoes', methods=["GET"])
+def list_refeicoes_filter_por_data(id_user):
+    data_str = request.args.get('data')  # pega ?data= da query string
+
+    if not data_str:
+        return jsonify({'message': 'Parâmetro "data" é obrigatório no formato DD/MM/YYYY'}), 400
+    
+    try:
+        data_formatada = datetime.strptime(data_str, '%d/%m/%Y').date()
+    except ValueError:
+        return jsonify({'message': 'Formato de data inválido. Use DD/MM/YYYY'}), 400
+    
+    refeicoes_filter_por_data = Refeicao.query.filter_by(
+        Refeicao.criado_em == data_formatada,
+        Refeicao.usuario_id == id_user
+    ).all()
+
+    list_refeicoes_por_data = []
+    for refeicao in refeicoes_filter_por_data:
+        list_refeicoes_por_data.append({
+            'id': refeicao.id,
+            'usuario_id': refeicao.usuario_id,
+            'nome': refeicao.nome,
+            'data_hora': refeicao.data_hora.strftime('%d/%m/%Y - %H:%M') if refeicao.data_hora else None,
+            'dentro_dieta': refeicao.dentro_dieta,
+            'criado_em': refeicao.criado_em.strftime('%d/%m/%Y') if refeicao.criado_em else None
         })
     
-    return jsonify({f'Lista do ID({id_user})': refeito_list})
+    return jsonify({f"Refeições do usuário {id_user} em {data_str}": list_refeicoes_por_data})
+
+@app.route('/user/<int:id_user>/refeicoes/<int:id_refeicao>', methods=['PUT'])
+def atualizar_nome_refeicao(id_user, id_refeicao):
+    data = request.get_json()
     
+    novo_nome = data.get('novo_nome')
+    if not novo_nome:
+        return jsonify({'message': 'Campo "novo_nome" é obrigatório'}), 400
+    
+    refeicao = Refeicao.query.filter_by(id=id_refeicao, usuario_id=id_user).first()
+    if not refeicao:
+        return jsonify({'message': 'Refeição não encontrada'}), 404
+    
+    refeicao.nome = novo_nome
+    db.session.commit()
+    
+    return jsonify({'message': 'Nome da refeição atualizado com sucesso'}), 200
+
+@app.route('/user/<int:id_user>/refeicoes/<int:id_refeicao>', methods=['DELETE'])
+def deletar_refeicao_do_user(id_user, id_refeicao):
+    
+    refeicao_delete = Refeicao.query.filter_by(id=id_refeicao, usuario_id=id_user).first()
+    
+    if not refeicao_delete:
+        return jsonify({'message': 'Refeição não encontrada'}), 404
+    
+    db.session.delete(refeicao_delete)
+    db.session.commit()
+    
+    return jsonify({'message': f'Refeição de ID {id_refeicao} do usuário {id_user} foi deletada'}), 200
 
 @app.route('/login', methods=["POST"])
 def login():
